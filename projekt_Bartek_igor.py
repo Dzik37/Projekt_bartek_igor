@@ -114,24 +114,25 @@ class Transformacje:
 
 
 
-    def s_A_z2neu (self, s, A, z, output = "dec_degrees"):
+    def xyz2neu(self, X1, Y1, Z1, X0, Y0, Z0, output = "dec_degrees"):
         """
         Wyznaczenie współrzędnych topocentrycznych N,E,U:
             
 
         Parameters
         ----------
-        s : FLOAT
-            [metry] - długosc linii geodezyjnej.
-        A : FLOAT
-            [stopnie dziesiętne] - Azymut linii geodezyjnej.
-        z : FLOAT
-            [stopnie dziesiętne] - odległosc zenitalna.
+        X, Y, Z : FLOAT
+            współrzędne geocentryczne satelitów
+            [metry]
+        X0, Y0, Z0 : FLOAT
+            współrzędne geocentryczne anteny
+            [metry]
+        
        
 
         Returns
         -------
-        Współrzędne topocentryczne:
+        Współrzędne topocentryczne satelitów:
         n : FLOAT
             [metry]
         e : FLOAT
@@ -143,13 +144,37 @@ class Transformacje:
             dec_degree - decimal degree
             dms - degree, minutes, sec
         """
-        A = deg2rad(A)
-        z = deg2rad(z)
-        n = s * sin(z) * cos(A)
-        e = s * sin(z) * sin(A)
-        u = s * cos(z)
+        dX = np.array([[X - X0],
+                       [Y - Y0],
+                       [Z - Z0]])
 
+        def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
+            r   = sqrt(X**2 + Y**2)           # promień
+            lat_prev = atan(Z / (r * (1 - self.ecc2)))    # pierwsze przybliilizenie
+            lat = 0
+            while abs(lat_prev - lat) > 0.000001/206265:    
+                lat_prev = lat
+                N = self.a / sqrt(1 - self.ecc2 * sin(lat_prev)**2)
+                h = r / cos(lat_prev) - N
+                lat = atan((Z/r) * (((1 - self.ecc2 * N/(N + h))**(-1))))
+            lon = atan(Y/X)
+            N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
+            h = r / cos(lat) - N       
+            
+            return lat, lon, h
+        
+        phi, lam, h = xyz2plh(self,X,Y,Z)
+
+        def RneuT (phi,lam):
+            R = np.array([[-np.sin(phi) * np.cos(lam),-np.sin(phi) * np.sin(lam), np.cos(phi)],
+                          [-np.sin(lam), np.cos(lam), 0],
+                          [np.cos(phi) * np.cos(lam), np.cos(phi) * np.sin(lam), np.sin(phi)]])
+            return R
+            
+        n,e,u = RneuT(phi,lam) @ dX 
+        
         return (n, e, u)
+       
 
 
 
@@ -285,220 +310,6 @@ class Transformacje:
         Y92 = Ygk * mo + 500000
         return X92, Y92
 
-    def red_odlGK2e(self, fi, lam, h, fi2, lam2, h2, output):
-        '''
-        Funkcja wyznacza odległosc 3D dla współrzędnych geodezyjnych punktów końcowych odcinka ( fi,lam,h, fi2,lma2,h2)
-
-        Parameters
-        ----------
-       FI, LAM, H : FLOAT
-            współrzędne geodezyjne i wysokosc elipsoidalna,
-            współrzędne - [stopnie], wysokosc [metry]
-        
-        
-
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
-
-        Returns
-        -------
-        r : redukcja odległosci
-            
-
-        '''
-        def phl2xygk(fi,lam,h):
-            if lam < 16.5 :
-                L0 = 15
-                nrst = 5
-            if lam > 16.5 and lam < 19.5 :
-                    L0 = 18
-                    nrst = 6
-            if lam > 19.5 and lam < 22.5:
-                L0 = 21
-                nrst = 7
-            if lam > 22.5:
-                L0 = 24
-                nrst = 8
-        #delta lambda
-            l = lam-L0
-        #zmiana jednostek
-            fi = fi * pi/180
-            lam = lam * pi/180
-            l = l * pi/180
-    
-            b2 = self.a**2 *(1-self.ecc2)
-            e_2 = ((self.a)**2-(b2))/((b2))
-    
-            t = tan(fi)
-    
-            eta2 = (e_2)*((cos(fi))**2)
-    
-            N = self.a/(sqrt( 1 -(self.ecc2) * (sin(fi))**2))
-    
-    
-            A0 = 1 - (self.ecc2/4) - (3 * ((self.ecc2)**2)/64) - (5*((self.ecc2)**3)/256)
-            A2 = (3/8) * ((self.ecc2) + (((self.ecc2)**2)/4) + (15 * ((self.ecc2)**3)/128))
-            A4 = (15/256) * (((self.ecc2)**2)+(3*((self.ecc2)**3)/4))
-            A6 = (35*(self.ecc2)**3)/3072
-    
-            sigma = self.a * ((A0) * (fi) - (A2) * (sin(2 * fi)) + (A4) * (sin(4 * fi)) - (A6) * (sin(6*fi)))
-    
-    
-            Xgk = sigma + ((l**2)/2) * N * (sin(fi)) * (cos(fi)) * (1 + ((l**2)/12) * ((cos(fi))**2) * (5 - (t**2) + 9*(eta2) + 4*(eta2)**2) + ((l**4)/360) * ((cos(fi))**4) * (61 - 58*(t**2) + (t**4) + 270*(eta2) - 330*(eta2) * (t**2)))
-            Ygk = l * N * (cos(fi)) * (1 + ((l**2)/6) * ((cos(fi))**2) * (1 - t**2 + eta2) + ((l**4)/120) * ((cos(fi))**4) * (5 - 18*(t**2) + (t**4) + 14*eta2 - 58*(eta2) * (t**2)))
-            return Xgk, Ygk
-        
-        X,Y = phl2xygk(fi, lam, h)
-        X2,Y2 = phl2xygk(fi2, lam2, h2)
-    
-        A0 = 1 - (self.ecc2/4) - (3 * ((self.ecc2)**2)/64) - (5*((self.ecc2)**3)/256)
-    
-        fiA = X / (self.a * A0) #rad
-        fiB = X2 / (self.a * A0) #rad
-    
-        fim = (fiA + fiB)/2
-        Nm = self.a/(sqrt( 1 -(self.ecc2) * (sin(fim))**2))
-        Mm = (self.a*(1-self.ecc2))/(sqrt(1-self.ecc2*(sin(fim))**2)**3)
-        R = sqrt(Mm*Nm)
-    
-        dY = Y2 - Y
-        dX = X2 - X
-    
-        Sgk = sqrt((dY)**2 + (dX)**2)
-    
-        r =(Y**2 + Y * Y2 + Y2**2)/(6*R**2)*Sgk
-        s0 = Sgk/(1+r)
-
-        return s0
-    
-    def azymut_kat(self,fi, lam, h, fi2, lam2, h2, output):
-        """
-        Funkcja oblicza azymut i kąt elewacji ze współrzędnych geocentrycznych
-        X,Y,Z.
-
-        Parameters
-        ----------
-       FI, LAM, H : FLOAT
-            współrzędne geodezyjne i wysokosc elipsoidalna,
-            współrzędne - [stopnie], wysokosc [metry]
-        
-        
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
-
-        Returns
-        -------
-        A      : FLOAT
-        [stopnie dziesiętne] - Azymut linii geodezyjnej
-        
-        alfaAB : FLOAT
-        [stopnie dziesiętne] - kąt elewacji
-        """
-        def phl2xygk(fi,lam,h):
-            if lam < 16.5 :
-                L0 = 15
-                nrst = 5
-            if lam > 16.5 and lam < 19.5 :
-                    L0 = 18
-                    nrst = 6
-            if lam > 19.5 and lam < 22.5:
-                L0 = 21
-                nrst = 7
-            if lam > 22.5:
-                L0 = 24
-                nrst = 8
-        #delta lambda
-            l = lam-L0
-        #zmiana jednostek
-            fi = fi * pi/180
-            lam = lam * pi/180
-            l = l * pi/180
-    
-            b2 = self.a**2 *(1-self.ecc2)
-            e_2 = ((self.a)**2-(b2))/((b2))
-    
-            t = tan(fi)
-    
-            eta2 = (e_2)*((cos(fi))**2)
-    
-            N = self.a/(sqrt( 1 -(self.ecc2) * (sin(fi))**2))
-    
-    
-            A0 = 1 - (self.ecc2/4) - (3 * ((self.ecc2)**2)/64) - (5*((self.ecc2)**3)/256)
-            A2 = (3/8) * ((self.ecc2) + (((self.ecc2)**2)/4) + (15 * ((self.ecc2)**3)/128))
-            A4 = (15/256) * (((self.ecc2)**2)+(3*((self.ecc2)**3)/4))
-            A6 = (35*(self.ecc2)**3)/3072
-    
-            sigma = self.a * ((A0) * (fi) - (A2) * (sin(2 * fi)) + (A4) * (sin(4 * fi)) - (A6) * (sin(6*fi)))
-    
-    
-            Xgk = sigma + ((l**2)/2) * N * (sin(fi)) * (cos(fi)) * (1 + ((l**2)/12) * ((cos(fi))**2) * (5 - (t**2) + 9*(eta2) + 4*(eta2)**2) + ((l**4)/360) * ((cos(fi))**4) * (61 - 58*(t**2) + (t**4) + 270*(eta2) - 330*(eta2) * (t**2)))
-            Ygk = l * N * (cos(fi)) * (1 + ((l**2)/6) * ((cos(fi))**2) * (1 - t**2 + eta2) + ((l**4)/120) * ((cos(fi))**4) * (5 - 18*(t**2) + (t**4) + 14*eta2 - 58*(eta2) * (t**2)))
-            return Xgk, Ygk
-        
-        A0 = 1 - (self.ecc2/4) - (3 * ((self.ecc2)**2)/64) - (5*((self.ecc2)**3)/256)
-    
-        fiA = X / (self.a * A0) #rad
-        fiB = X2 / (self.a * A0) #rad
-    
-        fim = (fiA + fiB)/2
-        Nm = self.a/(sqrt( 1 -(self.ecc2) * (sin(fim))**2))
-        Mm = (self.a*(1-self.ecc2))/(sqrt(1-self.ecc2*(sin(fim))**2)**3)
-        R = sqrt(Mm*Nm)
-    
-
-        def gamma(self, fi,Y):
-            b2 = self.a**2 *(1-self.ecc2)
-            e_2 = ((self.a)**2-(b2))/((b2))
-            N =  self.a/(sqrt( 1 -(self.ecc2) * (sin(fiA))**2))
-            n2 = e_2 * cos(fiA)**2
-            t = tan(fiA)
-            gamma = (Y/N) * t *(1 -(Y**2/(3*N**2)) * (1 + t**2 - n2 - 2*n2**2) + ((Y**4) * (2 + 5*t**2 + 3*t**4))/(15*N**4))
-            return gamma
-    
-        gammaA = gamma(fiA, Y, self.a)
-        gammaB = gamma(fiB, Y2, self.a)
-    
-        def promien(self,fiA, fiB):
-            fim = (fiA + fiB)/2
-            Nm = self.a/(sqrt( 1 -(self.ecc2) * (sin(fim))**2))
-            Mm = (self.a*(1-self.ecc2))/(sqrt(1-self.ecc2*(sin(fim))**2)**3)
-            R = sqrt(Mm*Nm)
-            return R
-    
-        R = promien(self,fiA, fiB)
-    
-        deltaA = ((X2- X) * (2*Y + Y2))/(6*R**2)
-        deltaB = ((X - X2) * (2*Y2 + Y))/(6*R**2)
-    
-        def alfa(self,X, Y, X2, Y2):
-            dxgk = X2 - X
-            dygk = Y2 - Y
-            alfa = atan2(dygk,dxgk)
-            if alfa < 0:
-                alfa = alfa +2*pi
-            return alfa
-
-        alfaAB = alfa(X, Y, X2, Y2)
-        alfaBA = alfa(X2, Y2, X, Y)
-    
-        def Azymut(self,alfaAB, gammaA, deltaA):
-            A = alfaAB + gammaA + deltaA
-            return A
-        Aa = Azymut(alfaAB, gammaA, deltaA)
-        Ab = Azymut(alfaBA, gammaB, deltaB)
-    
-        gammaA = gammaA*180/pi
-        gammaB = gammaB*180/pi
-        deltaA = (deltaA*180/pi)*3600
-        deltaB = (deltaB*180/pi)*3600
-        alfaAB = alfaAB*180/pi
-        alfaBA = alfaBA*180/pi
-        Aa = Aa*180/pi
-        Ab = Ab*180/pi
-        return  alfaAB, Aa
 
     
 if __name__ == "__main__":
@@ -513,8 +324,7 @@ if __name__ == "__main__":
     print(phi, lam, h)
     x,y,z = geo.plh2xyz(phi, lam, h)
     print(x,y,z)
-    #A, a = geo.azymut_kat(X, Y, X2, Y2)
-    #print(A,a)
+
     
 # class Transformacje:
 #     def __init__(self, model: str = "wgs84"):
