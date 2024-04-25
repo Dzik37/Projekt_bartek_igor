@@ -67,7 +67,7 @@ class Transformacje:
         N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
         h = r / cos(lat) - N       
         if output == "dec_degree":
-            return round(degrees(lat),5), round(degrees(lon),5), round(h,3) 
+            return degrees(lat), degrees(lon), h
 
 
 
@@ -99,7 +99,7 @@ class Transformacje:
         X = (N + h) * cos(phi) * cos(lam)
         Y = (N + h) * cos(phi) * sin(lam)
         Z = (N * (1-self.ecc2) + h) * sin(phi) 
-        return round(X,3), round(Z,3), round(Y,3)
+        return X, Z, Y
 
 
 
@@ -329,7 +329,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for plh in coords_plh:
-            s = f'{plh[0]:.5f},{plh[1]:.5f},{plh[2]:.5f} \n'
+            s = f'{plh[0]:.5f},{plh[1]:.5f},{plh[2]:.3f} \n'
             f1.write(s)
             
         f1.close()    
