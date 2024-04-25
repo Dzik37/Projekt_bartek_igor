@@ -1,7 +1,6 @@
 import numpy as np
-from math import *
-from math import sin, cos, sqrt, atan, atan2, degrees, radians, pi, tan
-from numpy import deg2rad
+from math import sin, cos, sqrt, atan, degrees, pi, tan
+import sys
 
 class Transformacje:
     def __init__(self, model: str = "wgs84"):
@@ -37,9 +36,8 @@ class Transformacje:
     
     def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
         """
-        Algorytm Hirvonena - algorytm transformacji współrzędnych ortokartezjańskich (x, y, z)
-        na współrzędne geodezyjne długość szerokość i wysokośc elipsoidalna (phi, lam, h). Jest to proces iteracyjny. 
-        W wyniku 3-4-krotneej iteracji wyznaczenia wsp. phi można przeliczyć współrzędne z dokładnoscią ok 1 cm.     
+        Przeliczenie współrzędnych X, Y, Z do phi, lambda, h:
+        
         Parameters
         ----------
         X, Y, Z : FLOAT
@@ -69,20 +67,14 @@ class Transformacje:
         N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
         h = r / cos(lat) - N       
         if output == "dec_degree":
-            return degrees(lat), degrees(lon), h 
-        elif output == "dms":
-            lat = self.deg2dms(degrees(lat))
-            lon = self.deg2dms(degrees(lon))
-            return f"{lat[0]:02d}:{lat[1]:02d}:{lat[2]:.2f}", f"{lon[0]:02d}:{lon[1]:02d}:{lon[2]:.2f}", f"{h:.3f}"
-        else:
-            raise NotImplementedError(f"{output} - output format not defined")
+            return round(degrees(lat),5), round(degrees(lon),5), round(h,3) 
 
 
 
-    def plh2xyz(self, lon, lat, h, output = 'dec_degrees'):
+
+    def plh2xyz(self, phi, lam, h):
         """ 
-        Przeliczenie współrzędnych ortokartezjańskich X,Y,Z 
-        ze współrzędnych geodezyjnych i wysokosci elipsoidalnej phi, lambda, h:
+        Przeliczenie współrzędnych phi, lambda, h do X, Y, Z:
         
         Parameters:
         -----------
@@ -101,24 +93,20 @@ class Transformacje:
         Z : FLOAT
             [metry]
             
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
         
         """
-        N =  self.a / sqrt(1 - self.ecc2 * sin(lat)**2)
-        X = (N + h) * cos(lat) * cos(lon)
-        Y = (N + h) * cos(lat) * sin(lon)
-        Z = (N * (1-self.ecc2) + h) * sin(lat) 
-        return X,Y,Z
+        N =  self.a / sqrt(1 - self.ecc2 * sin(phi)**2)
+        X = (N + h) * cos(phi) * cos(lam)
+        Y = (N + h) * cos(phi) * sin(lam)
+        Z = (N * (1-self.ecc2) + h) * sin(phi) 
+        return round(X,3), round(Z,3), round(Y,3)
 
 
 
-    def xyz2neu(self, X1, Y1, Z1, X0, Y0, Z0, output = "dec_degrees"):
+    def xyz2neu(self, X, Y, Z, X0, Y0, Z0):
         """
         Wyznaczenie współrzędnych topocentrycznych N,E,U:
             
-
         Parameters
         ----------
         X, Y, Z : FLOAT
@@ -128,8 +116,6 @@ class Transformacje:
             współrzędne geocentryczne anteny
             [metry]
         
-       
-
         Returns
         -------
         Współrzędne topocentryczne satelitów:
@@ -140,9 +126,7 @@ class Transformacje:
         u : FLOAT
             [metry]
         
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
+
         """
         dX = np.array([[X - X0],
                        [Y - Y0],
@@ -178,7 +162,7 @@ class Transformacje:
 
 
 
-    def uklad2000(self, fi,lam,h, output = 'dec_degrees'):
+    def uklad2000(self, fi,lam,h):
         """
         Wyznaczenie współrzędnych w układzie 2000 
         ze współrzędnych geodezyjnych phi, lambda, h.
@@ -197,9 +181,7 @@ class Transformacje:
         Y2000 : FLOAT
             [metry]
 
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
+
         """
         
         if lam < 16.5 :
@@ -216,7 +198,7 @@ class Transformacje:
                 nrst = 8
         #delta lambda
         l = lam-L0
-            #zmiana jednostek
+        #zmiana jednostek
         fi = fi * pi/180
         lam = lam * pi/180
         l = l * pi/180
@@ -251,7 +233,7 @@ class Transformacje:
 
 
 
-    def uklad1992(self,fi,lam,h,output = 'dec_degrees'):
+    def uklad1992(self,fi,lam,h):
         """
         Wyznaczenie współrzędnych w układzie 1992 
         ze współrzędnych geodezyjnych phi, lambda, h.
@@ -271,9 +253,6 @@ class Transformacje:
         Y92 : FLOAT
             [metry]
 
-        output [STR] - optional, defoulf 
-            dec_degree - decimal degree
-            dms - degree, minutes, sec
         """
     
         #delta lambda
@@ -313,17 +292,58 @@ class Transformacje:
 
     
 if __name__ == "__main__":
-    # utworzenie obiektu
-    geo = Transformacje(model = "mars")
-    # dane XYZ geocentryczne
-    X = 3664940.500; Y = 1409153.590; Z = 5009571.170
-    X2 = 3664940.520; Y2 =1409153.570; Z2 =5009571.167 
-    phi, lam, h = geo.xyz2plh(X, Y, Z)
-    print(phi, lam, h)
-    phi, lam, h = geo.xyz2plh(X, Y, Z)
-    print(phi, lam, h)
-    x,y,z = geo.plh2xyz(phi, lam, h)
-    print(x,y,z)
+    # # utworzenie obiektu
+    # geo = Transformacje(model = "mars")
+    # # dane XYZ geocentryczne
+    # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
+    # X2 = 3664940.520; Y2 =1409153.570; Z2 =5009571.167 
+    # phi, lam, h = geo.xyz2plh(X, Y, Z)
+    # print(phi, lam, h)
+    # x,y,z = geo.plh2xyz(phi, lam, h)
+    # print(x,y,z)
+
+    #URUCHAMIANIE PROGRAMU Z KONSOLI, w konsole trzeba wpisać: python projekt_Bartek_igor.py xyz2plh wsp_xyz_inp.txt
+
+    geo = Transformacje(model = "wgs84")
+    
+    sys.argv[0] = 'nazwa programu'
+    wybrana_funkcja = sys.argv[1]
+    plik = sys.argv[2]
+    
+    print(sys.argv[0], sys.argv[1], sys.argv[2])
+
+    if wybrana_funkcja == 'xyz2plh':
+        with open(plik, 'r') as f:
+            lines = f.readlines()
+            coord_lines = lines
+        
+            coords_plh = []
+            for coord_line in coord_lines:
+                coord_line = coord_line.strip('\n')
+                x_str, y_str, z_str = coord_line.split(',')
+                x, y, z = (float(x_str), float(y_str), float(z_str))
+                phi, lam, h = geo.xyz2plh(x, y, z)
+                coords_plh.append([phi, lam, h])
+        
+        file_out = 'wsp_plh_out.txt'
+        f1 = open(file_out, 'w')
+        
+        for plh in coords_plh:
+            s = f'{plh[0]:.5f},{plh[1]:.5f},{plh[2]:.5f} \n'
+            f1.write(s)
+            
+        f1.close()    
+
+
+
+
+
+
+
+
+
+
+
 
     
 # class Transformacje:
