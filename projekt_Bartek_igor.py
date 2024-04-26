@@ -335,7 +335,7 @@ if __name__ == "__main__":
         f1.close()    
         
         
-    if wybrana_funkcja == 'plh2xyz':
+    elif wybrana_funkcja == 'plh2xyz':
         with open(plik, 'r') as f:
             lines = f.readlines()
             coord_lines = lines
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xyz in coords_xyz:
-            s = f'{x[0]:.5f},{y[0]:.5f},{z[0]:.3f} \n'
+            s = f'{xyz[0]:.5f},{xyz[0]:.5f},{xyz[0]:.3f} \n'
             f1.write(s)
             
         f1.close()    
