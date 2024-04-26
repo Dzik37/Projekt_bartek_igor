@@ -344,15 +344,15 @@ if __name__ == "__main__":
             for coord_line in coord_lines:
                 coord_line = coord_line.strip('\n')
                 p_str, l_str, h_str = coord_line.split(',')
-                p, l, h = (float(radians(p_str)), float(radians(l_str)), float(h_str))
+                p, l, h = (radians(float(p_str)), radians(float(l_str)), float(h_str))
                 x, y, z = geo.plh2xyz(p, l, h)
                 coords_xyz.append([x, y, z])
         
         file_out = 'wsp_xyz_out.txt'
         f1 = open(file_out, 'w')
         
-        for plh in coords_xyz:
-            s = f'{x[0]:.5f},{y[1]:.5f},{z[2]:.3f} \n'
+        for xyz in coords_xyz:
+            s = f'{x[0]:.5f},{y[0]:.5f},{z[0]:.3f} \n'
             f1.write(s)
             
         f1.close()    
