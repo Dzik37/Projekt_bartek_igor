@@ -378,7 +378,51 @@ if __name__ == "__main__":
             f1.write(s)
             
         f1.close()    
-  
+        
+    elif wybrana_funkcja == 'uklad2000':
+        with open(plik, 'r') as f:
+            lines = f.readlines()
+            coord_lines = lines
+        
+            coords_xy2000 = []
+            for coord_line in coord_lines:
+                coord_line = coord_line.strip('\n')
+                p_str, l_str, h_str = coord_line.split(',')
+                p, l, h = (radians(float(p_str)), radians(float(l_str)), float(h_str))
+                x, y = geo.uklad2000(p, l, h)
+                coords_xy2000.append([x, y])
+        
+        file_out = 'wsp_xy2000_out.txt'
+        f1 = open(file_out, 'w')
+        
+        for xy in coords_xy2000:
+            s = f'{x[0]:.5f},{y[0]:.5f} \n'
+            f1.write(s)
+            
+        f1.close()  
+        
+    elif wybrana_funkcja == 'uklad1992':
+        with open(plik, 'r') as f:
+            lines = f.readlines()
+            coord_lines = lines
+        
+            coords_xy1992 = []
+            for coord_line in coord_lines:
+                coord_line = coord_line.strip('\n')
+                p_str, l_str, h_str = coord_line.split(',')
+                p, l, h = (radians(float(p_str)), radians(float(l_str)), float(h_str))
+                x, y = geo.uklad1992(p, l, h)
+                coords_xy1992.append([x, y])
+        
+        file_out = 'wsp_xy1992_out.txt'
+        f1 = open(file_out, 'w')
+        
+        for xy in coords_xy1992:
+            s = f'{x[0]:.5f},{y[0]:.5f} \n'
+            f1.write(s)
+            
+        f1.close()  
+
 
 
 
