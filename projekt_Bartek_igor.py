@@ -352,11 +352,34 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xyz in coords_xyz:
-            s = f'{xyz[0]:.5f},{xyz[0]:.5f},{xyz[0]:.3f} \n'
+            s = f'{xyz[0]:.5f},{xyz[0]:.5f},{xyz[0]:.5f} \n'
+            f1.write(s)
+            
+        f1.close()    
+        
+    elif wybrana_funkcja == 'xyz2neu':
+        with open(plik, 'r') as f:
+            lines = f.readlines()
+            coord_lines = lines
+        
+            coords_neu = []
+            for coord_line in coord_lines:
+                coord_line = coord_line.strip('\n')
+                x_str, y_str, z_str, x0_str, y0_str, z0_str = coord_line.split(',')
+                x, y, z, x0, y0, z0 = (float(x_str), float(y_str), float(z_str), float(x0_str), float(y0_str), float(z0_str))
+                n, e, u = geo.xyz2neu(x, y, z, x0, y0, z0)
+                coords_neu.append([n, e, u])
+        
+        file_out = 'wsp_neu_out.txt'
+        f1 = open(file_out, 'w')
+        
+        for neu in coords_neu:
+            s = f'{n[0]:.5f},{e[0]:.5f},{u[0]:.5f} \n'
             f1.write(s)
             
         f1.close()    
   
+
 
 
 
