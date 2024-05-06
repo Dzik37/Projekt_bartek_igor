@@ -304,11 +304,24 @@ if __name__ == "__main__":
 
     #URUCHAMIANIE PROGRAMU Z KONSOLI, w konsole trzeba wpisać: python projekt_Bartek_igor.py xyz2plh wsp_xyz_inp.txt
 
-    geo = Transformacje(model = "wgs84")
+   
     
     sys.argv[0] = 'nazwa programu'
     wybrana_funkcja = sys.argv[1]
     plik = sys.argv[2]
+    elipsoida = sys.argv[3]
+    if elipsoida == "wgs84":
+        
+        geo = Transformacje(model = "wgs84" )
+    elif elipsoida == "grs80":
+        geo = Transformacje(model =  "grs80")
+    elif elipsoida == "mars":
+        geo = Transformacje(model = "mars")
+    elif elipsoida == "krasowski":
+        geo = Transformacje(model = "krasowski")
+    else :
+        print('nie ma takiej elipsoidy')
+     
     
     print(sys.argv[0], sys.argv[1], sys.argv[2])
 
@@ -352,7 +365,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xyz in coords_xyz:
-            s = f'{xyz[0]:.5f},{xyz[0]:.5f},{xyz[0]:.5f} \n'
+            s = f'{xyz[0]:.5f},{xyz[1]:.5f},{xyz[2]:.5f} \n'
             f1.write(s)
             
         f1.close()    
@@ -374,7 +387,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for neu in coords_neu:
-            s = f'{n[0]:.5f},{e[0]:.5f},{u[0]:.5f} \n'
+            s = f'{neu[0]:.5f},{neu[1]:.5f},{neu[2]:.5f} \n'
             f1.write(s)
             
         f1.close()    
@@ -396,7 +409,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xy in coords_xy2000:
-            s = f'{x[0]:.5f},{y[0]:.5f} \n'
+            s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
             f1.write(s)
             
         f1.close()  
@@ -418,7 +431,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xy in coords_xy1992:
-            s = f'{x[0]:.5f},{y[0]:.5f} \n'
+            s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
             f1.write(s)
             
         f1.close()  
