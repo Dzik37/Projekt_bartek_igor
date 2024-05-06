@@ -34,7 +34,7 @@ class Transformacje:
 
 
     
-    def xyz2plh(self, X, Y, Z, output = 'dec_degree'):
+    def xyz2plh(self, X, Y, Z):
         """
         Przeliczenie współrzędnych X, Y, Z do phi, lambda, h:
         
@@ -66,8 +66,7 @@ class Transformacje:
         lon = atan(Y/X)
         N = self.a / sqrt(1 - self.ecc2 * (sin(lat))**2);
         h = r / cos(lat) - N       
-        if output == "dec_degree":
-            return degrees(lat), degrees(lon), h
+        return degrees(lat), degrees(lon), h
 
 
 
@@ -401,7 +400,7 @@ if __name__ == "__main__":
             for coord_line in coord_lines:
                 coord_line = coord_line.strip('\n')
                 p_str, l_str, h_str = coord_line.split(',')
-                p, l, h = (radians(float(p_str)), radians(float(l_str)), float(h_str))
+                p, l, h = (float(p_str), float(l_str), float(h_str))
                 x, y = geo.uklad2000(p, l, h)
                 coords_xy2000.append([x, y])
         
@@ -423,7 +422,7 @@ if __name__ == "__main__":
             for coord_line in coord_lines:
                 coord_line = coord_line.strip('\n')
                 p_str, l_str, h_str = coord_line.split(',')
-                p, l, h = (radians(float(p_str)), radians(float(l_str)), float(h_str))
+                p, l, h = float(p_str),float(l_str), float(h_str)
                 x, y = geo.uklad1992(p, l, h)
                 coords_xy1992.append([x, y])
         
@@ -431,7 +430,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xy in coords_xy1992:
-            s = f'{xy[0]:.3f},{xy[1]:.3f} \n'
+            s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
             f1.write(s)
             
         f1.close()  
