@@ -155,9 +155,9 @@ class Transformacje:
                           [np.cos(phi) * np.cos(lam), np.cos(phi) * np.sin(lam), np.sin(phi)]])
             return R
             
-        n,e,u = RneuT(phi,lam) @ dX 
+        [[n],[e],[u]] = RneuT(phi,lam) @ dX 
         
-        return (n, e, u)
+        return n, e, u
        
 
 
