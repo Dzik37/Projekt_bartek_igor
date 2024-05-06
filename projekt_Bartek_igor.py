@@ -365,7 +365,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xyz in coords_xyz:
-            s = f'{xyz[0]:.5f},{xyz[1]:.5f},{xyz[2]:.5f} \n'
+            s = f'{xyz[0]:.3f},{xyz[1]:.3f},{xyz[2]:.3f} \n'
             f1.write(s)
             
         f1.close()    
@@ -387,7 +387,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for neu in coords_neu:
-            s = f'{neu[0]:.5f},{neu[1]:.5f},{neu[2]:.5f} \n'
+            s = f'{neu[0]:.3f},{neu[1]:.3f},{neu[2]:.3f} \n'
             f1.write(s)
             
         f1.close()    
@@ -409,7 +409,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xy in coords_xy2000:
-            s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
+            s = f'{xy[0]:.3f},{xy[1]:.3f} \n'
             f1.write(s)
             
         f1.close()  
@@ -431,7 +431,7 @@ if __name__ == "__main__":
         f1 = open(file_out, 'w')
         
         for xy in coords_xy1992:
-            s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
+            s = f'{xy[0]:.3f},{xy[1]:.3f} \n'
             f1.write(s)
             
         f1.close()  
