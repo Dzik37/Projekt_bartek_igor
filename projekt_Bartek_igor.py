@@ -319,7 +319,7 @@ if __name__ == "__main__":
     elif elipsoida == "krasowski":
         geo = Transformacje(model = "krasowski")
     else :
-        print('nie ma takiej elipsoidy')
+        print('nie ma takiej elipsoidy, wybierz wgs84, grs80, mars lub krasowski')
      
     
     print(sys.argv[0], sys.argv[1], sys.argv[2])
