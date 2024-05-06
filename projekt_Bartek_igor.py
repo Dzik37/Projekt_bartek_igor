@@ -99,7 +99,7 @@ class Transformacje:
         X = (N + h) * cos(phi) * cos(lam)
         Y = (N + h) * cos(phi) * sin(lam)
         Z = (N * (1-self.ecc2) + h) * sin(phi) 
-        return X, Z, Y
+        return X, Y, Z
 
 
 
