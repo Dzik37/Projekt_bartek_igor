@@ -433,8 +433,11 @@ if __name__ == "__main__":
             s = f'{xy[0]:.5f},{xy[1]:.5f} \n'
             f1.write(s)
             
-        f1.close()  
-
+        f1.close()
+        
+    else:
+        print('nie ma takiej funkcji')
+         
 
 
 
