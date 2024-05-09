@@ -291,26 +291,17 @@ class Transformacje:
 
     
 if __name__ == "__main__":
-    # # utworzenie obiektu
-    # geo = Transformacje(model = "mars")
-    # # dane XYZ geocentryczne
-    # X = 3664940.500; Y = 1409153.590; Z = 5009571.170
-    # X2 = 3664940.520; Y2 =1409153.570; Z2 =5009571.167 
-    # phi, lam, h = geo.xyz2plh(X, Y, Z)
-    # print(phi, lam, h)
-    # x,y,z = geo.plh2xyz(phi, lam, h)
-    # print(x,y,z)
-
     #URUCHAMIANIE PROGRAMU Z KONSOLI, w konsole trzeba wpisać: python projekt_Bartek_igor.py xyz2plh wsp_xyz_inp.txt wgs84
+    #DLA FUNKCJI xyz2neu: python projekt_Bartek_igor.py xyz2neu wsp_xyz_inp.txt wgs84 3664940.500 1409153.590 5009571.170
 
    
     
-    sys.argv[0] = 'nazwa programu'
+    sys.argv[0] = 'transformacje'
     wybrana_funkcja = sys.argv[1]
     plik = sys.argv[2]
     elipsoida = sys.argv[3]
+    
     if elipsoida == "wgs84":
-        
         geo = Transformacje(model = "wgs84" )
     elif elipsoida == "grs80":
         geo = Transformacje(model =  "grs80")
@@ -318,17 +309,17 @@ if __name__ == "__main__":
         geo = Transformacje(model = "mars")
     elif elipsoida == "krasowski":
         geo = Transformacje(model = "krasowski")
-    else :
-        print('nie ma takiej elipsoidy, wybierz wgs84, grs80, mars lub krasowski')
+    else:
+        raise NameError('nie ma takiej elipsoidy, wybierz wgs84, grs80, mars lub krasowski')
      
-    
-    print(sys.argv[0], sys.argv[1], sys.argv[2])
+    print(f'program: {sys.argv[0]}\nwybrana funkcja: {sys.argv[1]}\nplik wejsciowy: {sys.argv[2]}\nwybrana elipsoida: {sys.argv[3]}')
 
     if wybrana_funkcja == 'xyz2plh':
+        
         with open(plik, 'r') as f:
             lines = f.readlines()
             coord_lines = lines
-        
+            
             coords_plh = []
             for coord_line in coord_lines:
                 coord_line = coord_line.strip('\n')
@@ -336,16 +327,20 @@ if __name__ == "__main__":
                 x, y, z = (float(x_str), float(y_str), float(z_str))
                 phi, lam, h = geo.xyz2plh(x, y, z)
                 coords_plh.append([phi, lam, h])
-        
-        file_out = 'wsp_plh_out.txt'
-        f1 = open(file_out, 'w')
-        
-        for plh in coords_plh:
-            s = f'{plh[0]:.5f},{plh[1]:.5f},{plh[2]:.3f} \n'
-            f1.write(s)
             
-        f1.close()    
+            file_out = 'wsp_plh_out.txt'
+            f1 = open(file_out, 'w')
+            
+            for plh in coords_plh:
+                s = f'{plh[0]:.5f},{plh[1]:.5f},{plh[2]:.3f} \n'
+                f1.write(s)
         
+        f1.close()  
+
+            
+        print(f'plik wyjsciowy: wsp_plh_out.txt')
+            
+
         
     elif wybrana_funkcja == 'plh2xyz':
         with open(plik, 'r') as f:
@@ -367,29 +362,42 @@ if __name__ == "__main__":
             s = f'{xyz[0]:.3f},{xyz[1]:.3f},{xyz[2]:.3f} \n'
             f1.write(s)
             
-        f1.close()    
+        f1.close() 
         
+        print(f'plik wyjsciowy: wsp_xyz_out.txt')
+        
+    
     elif wybrana_funkcja == 'xyz2neu':
-        with open(plik, 'r') as f:
-            lines = f.readlines()
-            coord_lines = lines
-        
-            coords_neu = []
-            for coord_line in coord_lines:
-                coord_line = coord_line.strip('\n')
-                x_str, y_str, z_str, x0_str, y0_str, z0_str = coord_line.split(',')
-                x, y, z, x0, y0, z0 = (float(x_str), float(y_str), float(z_str), float(x0_str), float(y0_str), float(z0_str))
-                n, e, u = geo.xyz2neu(x, y, z, x0, y0, z0)
-                coords_neu.append([n, e, u])
-        
-        file_out = 'wsp_neu_out.txt'
-        f1 = open(file_out, 'w')
-        
-        for neu in coords_neu:
-            s = f'{neu[0]:.3f},{neu[1]:.3f},{neu[2]:.3f} \n'
-            f1.write(s)
+        try:
+            x0 = sys.argv[4]
+            y0 = sys.argv[5]
+            z0 = sys.argv[6]
+            x0, y0, z0 = float(x0), float(y0), float(z0)
             
-        f1.close()    
+            with open(plik, 'r') as f:
+                lines = f.readlines()
+                coord_lines = lines
+            
+                coords_neu = []
+                for coord_line in coord_lines:
+                    coord_line = coord_line.strip('\n')
+                    x_str, y_str, z_str = coord_line.split(',')
+                    x, y, z = (float(x_str), float(y_str), float(z_str))
+                    n, e, u = geo.xyz2neu(x, y, z, x0, y0, z0)
+                    coords_neu.append([n, e, u])
+            
+            file_out = 'wsp_neu_out.txt'
+            f1 = open(file_out, 'w')
+            
+            for neu in coords_neu:
+                s = f'{neu[0]:.3f},{neu[1]:.3f},{neu[2]:.3f} \n'
+                f1.write(s)
+                
+            f1.close()  
+            
+            print(f'plik wyjsciowy: wsp_neu_out.txt')
+        except IndexError:
+            raise AttributeError('nie podano współrzędnych geocentrycznych: x0, y0, z0')
         
     elif wybrana_funkcja == 'uklad2000':
         with open(plik, 'r') as f:
@@ -411,7 +419,9 @@ if __name__ == "__main__":
             s = f'{xy[0]:.3f},{xy[1]:.3f} \n'
             f1.write(s)
             
-        f1.close()  
+        f1.close() 
+        
+        print(f'plik wyjsciowy: wsp_xy2000_out.txt')
         
     elif wybrana_funkcja == 'uklad1992':
         with open(plik, 'r') as f:
@@ -435,8 +445,11 @@ if __name__ == "__main__":
             
         f1.close()
         
+        print(f'plik wyjsciowy: wsp_xy1992_out.txt')
+        
     else:
-        print('nie ma takiej funkcji')
+        raise NameError('nie ma takiej funkcji')
+        
          
 
 
