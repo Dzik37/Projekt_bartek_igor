@@ -20,9 +20,6 @@ class Transformacje:
         elif model == "grs80":
             self.a = 6378137.0
             self.b = 6356752.31414036
-        elif model == "mars":
-            self.a = 3396900.0
-            self.b = 3376097.80585952
         elif model == "krasowski":
             self.a = 6378245.000
             self.b = 6356863.019            
@@ -291,8 +288,8 @@ class Transformacje:
 
     
 if __name__ == "__main__":
-    #URUCHAMIANIE PROGRAMU Z KONSOLI, w konsole trzeba wpisać: python projekt_Bartek_igor.py xyz2plh wsp_xyz_inp.txt wgs84
-    #DLA FUNKCJI xyz2neu: python projekt_Bartek_igor.py xyz2neu wsp_xyz_inp.txt wgs84 3664940.500 1409153.590 5009571.170
+    #URUCHAMIANIE PROGRAMU Z KONSOLI, w konsole trzeba wpisać: python transformacje.py --xyz2plh wsp_xyz_inp.txt --wgs84
+    #DLA FUNKCJI xyz2neu: python transformacje.py --xyz2neu wsp_xyz_inp.txt --wgs84 3664940.500 1409153.590 5009571.170
 
    
     
@@ -301,20 +298,18 @@ if __name__ == "__main__":
     plik = sys.argv[2]
     elipsoida = sys.argv[3]
     
-    if elipsoida == "wgs84":
+    if elipsoida == "--wgs84":
         geo = Transformacje(model = "wgs84" )
-    elif elipsoida == "grs80":
+    elif elipsoida == "--grs80":
         geo = Transformacje(model =  "grs80")
-    elif elipsoida == "mars":
-        geo = Transformacje(model = "mars")
-    elif elipsoida == "krasowski":
+    elif elipsoida == "--krasowski":
         geo = Transformacje(model = "krasowski")
     else:
         raise NameError('nie ma takiej elipsoidy, wybierz wgs84, grs80, mars lub krasowski')
      
     print(f'program: {sys.argv[0]}\nwybrana funkcja: {sys.argv[1]}\nplik wejsciowy: {sys.argv[2]}\nwybrana elipsoida: {sys.argv[3]}')
 
-    if wybrana_funkcja == 'xyz2plh':
+    if wybrana_funkcja == '--xyz2plh':
         
         with open(plik, 'r') as f:
             lines = f.readlines()
@@ -342,7 +337,7 @@ if __name__ == "__main__":
             
 
         
-    elif wybrana_funkcja == 'plh2xyz':
+    elif wybrana_funkcja == '--plh2xyz':
         with open(plik, 'r') as f:
             lines = f.readlines()
             coord_lines = lines
@@ -367,7 +362,7 @@ if __name__ == "__main__":
         print(f'plik wyjsciowy: wsp_xyz_out.txt')
         
     
-    elif wybrana_funkcja == 'xyz2neu':
+    elif wybrana_funkcja == '--xyz2neu':
         try:
             x0 = sys.argv[4]
             y0 = sys.argv[5]
@@ -399,7 +394,7 @@ if __name__ == "__main__":
         except IndexError:
             raise AttributeError('nie podano współrzędnych geocentrycznych: x0, y0, z0')
         
-    elif wybrana_funkcja == 'uklad2000':
+    elif wybrana_funkcja == '--uklad2000':
         with open(plik, 'r') as f:
             lines = f.readlines()
             coord_lines = lines
@@ -423,7 +418,7 @@ if __name__ == "__main__":
         
         print(f'plik wyjsciowy: wsp_xy2000_out.txt')
         
-    elif wybrana_funkcja == 'uklad1992':
+    elif wybrana_funkcja == '--uklad1992':
         with open(plik, 'r') as f:
             lines = f.readlines()
             coord_lines = lines
