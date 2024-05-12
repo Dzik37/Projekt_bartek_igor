@@ -305,7 +305,7 @@ if __name__ == "__main__":
     elif elipsoida == "--krasowski":
         geo = Transformacje(model = "krasowski")
     else:
-        raise NameError('nie ma takiej elipsoidy, wybierz wgs84, grs80, mars lub krasowski')
+        raise NameError('nie ma takiej elipsoidy, wybierz --wgs84, --grs80 lub --krasowski')
      
     print(f'program: {sys.argv[0]}\nwybrana funkcja: {sys.argv[1]}\nplik wejsciowy: {sys.argv[2]}\nwybrana elipsoida: {sys.argv[3]}')
 
