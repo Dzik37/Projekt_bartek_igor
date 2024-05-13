@@ -8,34 +8,78 @@
 \usepackage[]{graphicx}
 \usepackage[polish]{babel}
 \usepackage[]{lmodern}
+\usepackage{hyperref}
 
+
+
+\title{Sprawozdanie z Projektu 1: Transformacje współrzędnych}
+\author{[Bartek Cabaj, Igor Dudek]}
+\date{[13.05.2024]}
 
 \begin{document}
-\begin{center}
-strona tytułowa	
-\end{center}
+	
+	\maketitle
+	
+	\section{Cel ćwiczenia}
+	Celem ćwiczenia było stworzenie skryptu implementującego transformacje współrzędnych między różnymi układami na kilku dostępnych elipsoidach.
+	
+	\section{Wykorzystane narzędzia i materiały}
+	Do realizacji projektu wykorzystano:
 
 	
-\newpage
+	\begin{itemize}
+		\item Python w wersji 3.11.5
+		\item GitHubDesktop
+		\item Środowisko programistyczne Spyder
+		\item System operacyjny Windows 10/11
+		\item Biblioteka numpy
+		\item BIblioteka math
+		\item Biblioteka sys
+		\item Program Latex 
+	\end{itemize}
 	
-\section{Cel ćwiczenia}
-\normalsize
-
-
+	\section{Przebieg ćwiczenia}
+	W trakcie ćwiczenia zaimplementowano algorytmy transformacji współrzędnych, korzystając z wzorów znalezionych w literaturze i materiałów udosępnionych na zajęciach. Utworzyliśmy plik w programie Spyder, storzyliśmy klase, która zawierała elipsoidy: wgs84,grs80,krasowski. Następnie napisaliśmy funkcjie wraz z ich dokumentacją:
+	\begin{itemize}
+		\item xyz ---> plh
+		\item plh ---> xyz
+		\item xyz ---> neu
+		\item bl ---> uklad 2000
+		\item bl ---> uklad 1992
+		
+	\end{itemize} 
+	 Wprowadziliśmy klauzulę if \_\_name\_\_="\_\_main\_\_".
+	 Użyliśmy biblioteki sys aby program dało się wywoływać z konsoli. Wprowadziliśmy możliwość wyboru: transformacji, pliku wejściowego, elipsoidy.
+	 Następnie napisaliśmy kod, który odczytuje dane z pliku wejściowego dla każdej z transformacji i zapisuje je do pliku wyjściowego. Na koniec dopisaliśmy kod, który obsługuje przypadki gdy urzytkownik wprowadzi niepoprawne wartości.
+	 
+	 Wyniki z każdej transformacji sprawdzono za pomocą programu z innych zajęć, co potwierdzało ich poprawność.
 	
-\section{Wykorzystane narzędzia}
-
-
-
-\section{Przebieg ćwiczenia}
-
-
-
-\section{Podsumowanie}
+	\section{Link do repozytorium}
+	Rezultat pracy można znaleźć w repozytorium GitHub pod adresem:
 	
+	 \url{https://github.com/Dzik37/Projekt_bartek_igor.git}
 	
+	\section{Podsumowanie}
+	Nabyte umiejętności:
+	\begin{itemize}
+		\item Pisanie kodu obiektowego w Pythonie
+		\item Korzystanie z konsoli 
+		\item Obsługa programu w Pythonie z poziomu konsoli
+		\item Tworzenie dokumentów w LaTeX
+		\item Współpraca zespołowa z wykorzystaniem GitHub
+		\item Pisanie dokumentacji
+		\item Opisywanie działania programów 
+		\item Systematycznej pracy przez okres trwania projektu
+	\end{itemize}
 	
+	Spostrzeżenia i trudności:
+	\begin{itemize}
+		\item Transformacja bl ---> uklad 2000 i uklad 1992 dla elipsoidy krasowskiego nie działa
+		\item Znajdywanie małych błędów
+		
+	\end{itemize}
 	
+	\section{Bibliografia}
 	
 	
 \end{document}
